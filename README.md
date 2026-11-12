@@ -871,9 +871,9 @@ Before you do the removal have a look at which other things we assigned.
 fungi_tax_fin <- fungi_tax_fin %>% 
   dplyr::filter(Kingdom == "Fungi")
 ```
-> :memo: **Question 23:** List three other things that you found that are not fungi. 
+> :memo: **Question 23:** What kinds of non-fungal organisms were in the data?
 
-We also need some metadata with information on the exploratories, tree species etc.. 
+We also need some metadata with information on the Biodiversity Exploratories, tree species, etc.
 
 ```{r, eval = F}
 metadata <- utils::read.csv(here::here("Data",'sample_data_3_AHS.csv'), sep = ';')
@@ -883,12 +883,12 @@ base::row.names(metadata) <- metadata$sample
 metadata$sample <- NULL
 
 ```
-In a next step we load in the ASV table we curated with LULU. 
+In a next step, we load in the ASV table that we curated with LULU. 
 
 ```{r, eval = F}
 ASV_table_fungi_cur <- base::readRDS(here::here("Data", "ASV_table_fungi_cur.rds"))
 
-# Keep only samples that do represent real tree swabs. Cut Controls. 
+# Keep only samples that represent real tree swabs by removing the Controls. 
 asv_fungi <- ASV_table_fungi_cur$curated_table %>% 
   dplyr::select(all_of(base::rownames(metadata)))
 ```
@@ -912,10 +912,10 @@ full_physeq <- phyloseq::phyloseq(ASV, TAX, sampledata)
 
 > :memo: **Question 24:** How many taxa does our phyloseq object contain now? 
   
-For our analysis we want to focus on the differences between soil and bark samples as well as differences between coniferous and deciduous trees. So we need to do a lot of splitting and filtering of the phyloseq objects. We will only work within one region of the biodiversity exploratories, Schorfheide-Chorin in North-East Germany.  
+For our analysis, we want to focus on the differences between soil and bark samples as well as differences between coniferous and deciduous trees. For this, we need to do some splitting and filtering of the phyloseq objects. We will only work within one region of the biodiversity exploratories, Schorfheide-Chorin, in North-East Germany.  
 
 ```{r, eval = F}
-# Filter out samples that were sampled on trees that are not from our two target species and from the other . 
+# Filter out samples from trees that are not from our two target species and from the two other Exploratories. 
 
 physeq_sch <- phyloseq::subset_samples(full_physeq, 
                                             dominant_tree %in% c("Fagus_sylvatica",
@@ -953,11 +953,11 @@ physeq_sch_soil_pinus <- phyloseq::subset_samples(physeq_sch_soil, dominant_tree
 
 ```
 
-> :memo: **Question 25:** How many taxa do the different splits contain? Make a little table. 
+> :memo: **Question 25:** How many taxa do the different subsets contain?
   
 # 9. Analysis of library sizes
 
-We already have had a short look at how many reads we have per sample when we did the decontamination. To have a deeper look at the library sizes, and to judge if we have sequenced deep enough to find rare species, we can look at so-called rarefaction curves.
+We already have had a initial look at how many reads we have per sample when we did the decontamination. To have a deeper look at the library sizes, and to judge if we have sequenced deeply enough to find rare species, we can look at so-called rarefaction curves.
 
 ```{r; eval = F}
 # Create a sample_data column containing a column that corresponds to tree species and substrate.
@@ -977,13 +977,13 @@ rare_sch
 
 ```
 
-> :memo: **Question 26:** What differences can we see from these rarefaction curves?
+> :memo: **Question 26:** What differences can we see from these rarefaction curves between tree species and between substrate? What may be driving these differences?
 
 # 10. Alpha Diversity
 
-A first interesting diversity question might be if substrates or tree species differ in their number of species (richness) or diversity (e.g. Shannon diversity index). We can easily calculate both of these measures with the build-in phyloseq functions and then visually compare them with simple boxplots. 
+The first thing that we might be interested in checking would be whether substrates or tree species differ in their number of species (richness) or diversity (e.g. Shannon diversity index). We can calculate both of these measures with the build-in phyloseq functions and then visually compare them with boxplots. 
 
-First, we calculate the diversity measures and add them to the phyloseq object so that we have access to all other sample information as well.
+First, we calculate the diversity measures and add them to the phyloseq object, so that we have access to all other sample information as well.
 ```{r, eval = F}
 # Calculate the diversity measures.
 div_fun <- estimate_richness(physeq_sch, split = T, measures = c('Observed', 'Shannon'))
@@ -995,7 +995,7 @@ physeq_sch <- merge_phyloseq(physeq_sch, new_var_fun)
 fungi_sampledata <- sample_data(physeq_sch)
 ```
 
-Now we can use the data to create several boxplots. First, we will look at the differences in tree species.
+Now, we can use the data to create several boxplots. First, we look at the differences in tree species.
 ```{r, eval = F}
 fun_box_tree_shannon <- ggplot(fungi_sampledata, aes(x = dominant_tree, y = Shannon, fill = dominant_tree, colour = dominant_tree)) + 
   geom_boxplot(
@@ -1105,7 +1105,7 @@ sampledata_sch$tree_substrate <- factor(sampledata_sch$tree_substrate,
 phyloseq::sample_data(phy_sch_ord_top25_named_plot) <- phyloseq::sample_data(sampledata_sch)
 ```
 
-To create some nice plots, we will need to define some colors and a function that fills the bars that we create.
+To create some plots of the data, we will need to define some colors and a function that fills the bars that we create.
 
 ```{r, eval = F}
 library(paletteer)
@@ -1127,7 +1127,7 @@ scale_fill_sch <- function(...){
 }
 ```
 
-Now we can use functionality from a package called ggplot2. This will let us manipulate a lot of the elements in the plot to suit our visualization needs. We create two plots: One for the soil and one for the bark microbiome. We will then have two subplots within them, one for the beech trees and one for the pine trees.
+Now, we use a package,ggplot2, that let us manipulate many of the plot elements to suit our visualization needs. We create two plots: One for the soil and one for the bark microbiome, each with two subplots for the beech and pine trees.
 
 ```{r, eval = F}
 sch_ord_soil_plots <- phyloseq::subset_samples(phy_sch_ord_top25_named_plot, substrate == "soil") %>% 
@@ -1185,15 +1185,15 @@ sch_ord_bark_plots <- phyloseq::subset_samples(phy_sch_ord_top25_named_plot, sub
 sch_ord_bark_plots
 ```
 
-> :memo: **Question 28:** What are the most abundant orders in each tree species in a) soil and b) bark?
+> :memo: **Question 28:** What are the most abundant orders in each tree species in soil and bark?
 
 # 12. Differences in community composition/beta diversity between bark and soil
 
-We can see from the previous plots that there are differences between tree species and substrates. We don't know yet if they are really meaningful (i.e. statistically significant), or if just a trend/pattern that we can visually distinguish.
+We can see from the previous plots that there are differences between tree species and substrates. We don't know yet if they are really meaningful (i.e. statistically significant), or if this is just a trend that we can visually distinguish.
 
 Before we get an answer to that question, however, first let's look at another method to visually represent differences between groups: Ordination. 
 
-Ordinations are based on a distance metric between samples and groups. The distance measure indicates how different the trees are in the abundance and number of ASVs. A common measure that we are going to use here is Bray-Curtis dissimilarity, which looks at the abundances of taxa shared by two samples and the number of taxa found in each sample. If both samples share the same number of ASVs, with the same abundances, the dissimilarity (distance) will be zero. We can than ordinate the samples with an approach called Non-Metric Multidimensional Scaling. This approach ranks how dissimilar samples are to each other and plots them in a 2D space.
+Ordinations are based on a distance metric between samples and groups. The distance measure indicates how different the trees are in the abundance and number of ASVs. A common measure that we will use here is Bray-Curtis dissimilarity, which looks at the abundances of taxa shared by two samples and the number of taxa found in each sample. If both samples share the same number of ASVs, with the same abundances, the dissimilarity (distance) will be zero. We can than ordinate the samples with an approach called Non-Metric Multidimensional Scaling (NMDS). This approach ranks how dissimilar samples are to each other and plots them in a 2D space.
 
 ```{r, eval = F}
 # Ordinate the Schorfheide-Chorin phyloseq using an NMDS with Bray-Curtis distance.
@@ -1227,7 +1227,7 @@ ordination_sch_substrate
 
 ```
 
-With the dissimilarity/distance measure we can now also test if our groups (tree species & substrate) are really different statistically. To do so we will run a PERMANOVA: a permutational multivariate analysis of variance. This will decompose the dissimilarity matrix into variation within and between the groups we are interested in. 
+With the dissimilarity/distance metrics we can now test if our groups (tree species & substrate) are really statistically significantly different. To do so, we will run a PERMANOVA: a permutational multivariate analysis of variance. This will decompose the dissimilarity matrix into variation within and between the groups we are interested in. 
 
 ```{r, eval = F}
 # We need to calculate a distance matrix first.
@@ -1241,7 +1241,7 @@ vegan::adonis2(bray_mat_sch ~ factor(phyloseq::sample_data(physeq_sch)$substrate
 
 ```
 
-PERMANOVA results might be confounded if the groups were to have very different distributions around their centers. In order to see if our results are reliable, we therefore have to look at the dispersion.  
+PERMANOVA tests assume that the dispersion (how spread out/variable the points in each group are). If dispersion differs between samples, we cannot tell if the significant PERMANOVA results are due to differences in the group centers or different group spreads (the dispersion itself). Therefore, let's check the dispersion of our samples before we continue:
 
 ```{r, eval = F}
 # Test the within group dispersion for the substrate.
@@ -1260,6 +1260,6 @@ vegan::permutest(dispr_tree_sch)
 
 ```
 
-> :memo: **Question 29:** What other options can you find for distance measures between samples?  
+> :memo: **Question 29:** What other options can you find for distance measures between samples? Hint: look at the function documentation in the "Help" tab.
 > :memo: **Question 30:** Are there other ordination methods apart from NMDS?  
 > :memo: **Question 31:** Are there statistically meaningful differences between substrates? Between tree species? 
